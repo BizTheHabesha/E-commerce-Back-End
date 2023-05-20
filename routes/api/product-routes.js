@@ -8,14 +8,14 @@ router.get('/', async (req, res) => {
   try {
     const productsData = await Product.findAll({include: [Category, Tag]});
     if(!productsData){
-      console.warn(`404: /api/products/: No product data`);
+      console.warn(`404: GET /api/products/: No product data`);
       res.status(404).json({status:404, message:`There are no products in the database`})
     }else{
       console.info(`200: GET '/api/products/'`);
       res.json(productsData).status(200);
     }
   } catch (err) {
-    console.error(`500: /api/products/: ${err.message}`);
+    console.error(`500: GET /api/products/: ${err.message}`);
     console.error(err);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
@@ -26,14 +26,14 @@ router.get('/:id', async (req, res) => {
   try {
     const productData = await Product.findByPk(req.params['id'], {include: Category});
     if(!productData){
-      console.warn(`404: /api/products/${req.params['id']}: ID ${req.params['id']} not found`);
+      console.warn(`404: GET /api/products/${req.params['id']}: ID ${req.params['id']} not found`);
       res.status(404).json({status:404, message:`Product not found for ID ${req.params['id']}`});
     }else{
       console.info(`200: GET '/api/products/${req.params['id']}'`)
       res.json(productData).status(200);
     }
   } catch (err) {
-    console.error(`500: /api/products/${req.params['id']}: ${err.message}`);
+    console.error(`500: GET /api/products/${req.params['id']}: ${err.message}`);
     console.error(err);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
