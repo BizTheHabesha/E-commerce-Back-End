@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
     const categoriesData = await Category.findAll({include: Product});
     if(!categoriesData){
       console.warn(`404: GET '/ap/categories/': No Category Data`);
-      res.json({status: 404, message: 'not found', error:'There are no categories in the database.'}).status(404);
+      res.json({status: 404, message:'There are no categories in the database.'}).status(404);
     }else{
       console.info(`200: GET '/api/categories/`);
       res.json(categoriesData).status(200)
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error(`500: GET '/api/categories/': ${e.message}`);
     console.error(err);
-    res.status(500);
+    res.status(500).json({status:500, message:`An internal server error occured`});
   }
 });
 
@@ -24,7 +24,7 @@ router.get('/:id', async (req, res) => {
   try{
     const categoryData = await Category.findByPk(req.params['id'], {include: Product});
     if(!categoryData){
-      console.warn(`404: GET '/api/categories/${req.params['id']}': Category not found for that ID`);
+      console.warn(`404: GET '/api/categories/${req.params['id']}': Category not found for ID ${req.params['id']}`);
     }else{
       console.info(`200: GET '/api/categories/${req.params['id']}`)
       res.json(categoryData).status(200);
@@ -32,7 +32,7 @@ router.get('/:id', async (req, res) => {
   }catch(err){
     console.error(`500: GET 'api/categories/:id' (id:${req.params['id']}): ${e.message}`);
     console.error(err);
-    res.status(500);
+    res.status(500).json({status:500, message:`An internal server error occured`});
   }
 });
 
