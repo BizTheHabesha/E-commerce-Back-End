@@ -60,8 +60,31 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', (req, res) => {
-  // update a category by its `id` value
+router.put('/:id', async (req, res) => {
+  const clog = new Clog(`PUT /api/products/${req.params['id']}`);
+  try{
+    const findRes = await Category.findByPk(req.params['id']);
+    if(!findRes){
+      clog.httpStatus(404, `Category not found for ID ${req.params['id']}`);
+      res.status(404).json({status:404, message: `Category not found for ID ${req.params['id']}`});
+    }else{
+      if(!req.body['category_name']){
+        clog.httpStatus(400, `category_name not specified`)
+        res.status(400).json({status: 400, message: `category_name not specified`})
+      }
+      else{
+        const updateRes = Category.update(
+          {category_name: req.body[`category_name`]},
+          {where: {id: req.params['id']}}
+        )
+        clog.httpStatus(202);
+        res.status(202).json(updateRes);
+      }
+    }
+  }catch(error){
+    clog.httpStatus(500, error.message);
+    res.status(500).json({status: 500, message:'An internal server error occured'});
+  }
 });
 
 router.delete('/:id', async (req, res) => {
@@ -83,7 +106,7 @@ router.delete('/:id', async (req, res) => {
     }
   }catch(error){
     console.error(error);
-    clog.httpStatus(500, `${err.message}`);
+    clog.httpStatus(500, `${error.message}`);
     res.status(500).json({status:500, message: `An internal server error occured`});
   }
 });

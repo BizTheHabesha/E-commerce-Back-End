@@ -55,25 +55,49 @@ router.post('/', async (req, res) => {
       res.status(201).json(createStatus);
     }
   } catch (err) {
+    console.error(err);
     clog.httpStatus(500, `${err.message}`);
     res.status(500).json({status:500, message: `An internal server error occured`});
   }
 });
 
-router.put('/:id', (req, res) => {
-  // update a tag's name by its `id` value
+router.put('/:id', async (req, res) => {
+  const clog = new Clog(`/api/tags/${req.params['id']}`);
+  try{
+    const findRes = await Tag.findByPk(req.params['id']);
+    if(!findRes){
+      clog.httpStatus(404, `Tag not found for ID ${req.params['id']}`);
+      res.status(404).json({status:404, message: `Tag not found for ID ${req.params['id']}`});
+    }else{
+      if(!req.body['tag_name']){
+        clog.httpStatus(400, `tag_name not specified`)
+        res.status(400).json({status: 400, message: `tag_name not specified`})
+      }
+      else{
+        const updateRes = Tag.update(
+          {tag_name: req.body[`tag_name`]},
+          {where: {id: req.params['id']}}
+        )
+        clog.httpStatus(202);
+        res.status(202).json(updateRes);
+      }
+    }
+  }catch(err){
+    console.error(err);
+    clog.httpStatus(500, `${err.message}`);
+    res.status(500).json({status:500, message: `An internal server error occured`});
+  }
 });
 
 router.delete('/:id', async (req, res) => {
-  // delete a category by its `id` value
-  const clog = new Clog(`DELETE /api/categories/${req.params['id']}`);
+  const clog = new Clog(`DELETE /api/tags/${req.params['id']}`);
   try{
-    const findRes = await Category.findByPk(req.params['id']);
+    const findRes = await Tag.findByPk(req.params['id']);
     if(!findRes){
-      clog.httpStatus(404, `Category not found for ID ${req.params['id']}`);
-      res.status(404).json({status:404, message: `Category not found for ID ${req.params['id']}`});
+      clog.httpStatus(404, `Tag not found for ID ${req.params['id']}`);
+      res.status(404).json({status:404, message: `Tag not found for ID ${req.params['id']}`});
     }else{
-      const deleteRes = await Category.destroy({
+      const deleteRes = await Tag.destroy({
         where: {
           id: req.params['id']
         }
@@ -83,7 +107,7 @@ router.delete('/:id', async (req, res) => {
     }
   }catch(error){
     console.error(error);
-    clog.httpStatus(500, `${err.message}`);
+    clog.httpStatus(500, `${error.message}`);
     res.status(500).json({status:500, message: `An internal server error occured`});
   }
 });

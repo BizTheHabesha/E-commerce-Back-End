@@ -66,6 +66,7 @@ router.post('/', (req, res) => {
         return ProductTag.bulkCreate(productTagIdArr);
       }
       // if no product tags, just respond
+      clog.httpStatus(200);
       res.status(200).json(product);
     })
     .then((productTagIds) => {
@@ -145,7 +146,7 @@ router.delete('/:id', async (req, res) => {
     }
   }catch(error){
     console.error(error);
-    clog.httpStatus(500, `${err.message}`);
+    clog.httpStatus(500, `${error.message}`);
     res.status(500).json({status:500, message: `An internal server error occured`});
   }
 });
