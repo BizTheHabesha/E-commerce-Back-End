@@ -6,7 +6,7 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 
 router.get('/', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog('GET /api/products/');
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     const productsData = await Product.findAll({include: [Category, Tag]});
@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 // get one product
 router.get('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`GET /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     // check if this id is in the db and get that id
@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
     }
   */
   // initialzie clog for route
-  const clog = new Clog(`POST /api/products/`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   Product.create(req.body)
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
@@ -90,7 +90,7 @@ router.post('/', (req, res) => {
 // update product
 router.put('/:id', (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`PUT /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   Product.update(req.body, {
     where: {
       id: req.params.id,
@@ -136,7 +136,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`DELETE /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // check if this id is in the db

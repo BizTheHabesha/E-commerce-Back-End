@@ -3,10 +3,11 @@ const { Category, Product } = require('../../models');
 const Clog = require('../../lib/clog');
 
 // The `/api/categories` endpoint
+const endpoint = '/api/categories';
 
 router.get('/', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`GET /api/categories/`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     const categoriesData = await Category.findAll({include: Product});
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`GET /api/categories/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // check if this id is in the db and get that id
@@ -49,7 +50,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog('POST /api/categories/');
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     if(!req.body[`category_name`]){
@@ -72,7 +73,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`PUT /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // check if this id is in the db
@@ -106,7 +107,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`DELETE /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // check if this id is in the db
