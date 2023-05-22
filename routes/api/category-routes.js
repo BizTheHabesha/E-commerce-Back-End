@@ -61,7 +61,13 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-  // update a category by its `id` value
+  const clog = new Clog(`PUT /api/products/${req.params['id']}`);
+  try{
+
+  }catch(error){
+    clog.httpStatus(500, error.message);
+    res.status(500).json({status: 500, message:'An internal server error occured'});
+  }
 });
 
 router.delete('/:id', async (req, res) => {
