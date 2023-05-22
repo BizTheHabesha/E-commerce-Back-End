@@ -34,7 +34,7 @@ router.get('/:id', async (req, res) => {
     const categoryData = await Category.findByPk(req.params['id'], {include: Product});
     if(!categoryData){
       clog.httpStatus(404, `Category not found for ID ${req.params['id']}`);
-      res.status(404);
+      res.json({status: 404, message:'There are no categories in the database.'}).status(404);
     }else{
       clog.httpStatus(200);
       res.json(categoryData).status(200);
