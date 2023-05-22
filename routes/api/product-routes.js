@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
       res.status(404).json({status:404, message:`There are no products in the database`})
     }else{
       clog.httpStatus(200);
-      res.json(productsData).status(200);
+      res.status(200).json(productsData);
     }
   } catch (err) {
     // if there was an error, log it and res 500
@@ -38,7 +38,7 @@ router.get('/:id', async (req, res) => {
       res.status(404).json({status:404, message:`Product not found for ID ${req.params['id']}`});
     }else{
       clog.httpStatus(200);
-      res.json(productData).status(200);
+      res.status(200).json(productData);
     }
   } catch (err) {
     // if there was an error, log it and res 500
