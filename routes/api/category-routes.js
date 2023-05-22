@@ -1,43 +1,63 @@
 const router = require('express').Router();
 const { Category, Product } = require('../../models');
+const Clog = require('../../lib/clog');
 
 // The `/api/categories` endpoint
 
 router.get('/', async (req, res) => {
+  const clog = new Clog(`GET /api/categories/`);
   try {
     const categoriesData = await Category.findAll({include: Product});
     if(!categoriesData){
-      console.warn(`404: GET '/ap/categories/': No Category Data`);
-      res.json({status: 404, message:'There are no categories in the database.'}).status(404);
+      clog.httpStatus(410, 'No Category Data');
+      res.json({status: 410, message:'There are no categories in the database.'}).status(410);
     }else{
-      console.info(`200: GET '/api/categories/`);
+      clog.httpStatus(200);
       res.json(categoriesData).status(200)
     }
   } catch (err) {
-    console.error(`500: GET '/api/categories/': ${e.message}`);
     console.error(err);
+    clog.httpStatus(500, err.message);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
 });
 
 router.get('/:id', async (req, res) => {
+  const clog = new Clog(`GET /api/categories/${req.params['id']}`);
   try{
     const categoryData = await Category.findByPk(req.params['id'], {include: Product});
     if(!categoryData){
-      console.warn(`404: GET '/api/categories/${req.params['id']}': Category not found for ID ${req.params['id']}`);
+      clog.httpStatus(404, `Category not found for ID ${req.params['id']}`);
+      res.status(404);
     }else{
-      console.info(`200: GET '/api/categories/${req.params['id']}`)
+      clog.httpStatus(200);
       res.json(categoryData).status(200);
     }
   }catch(err){
-    console.error(`500: GET 'api/categories/:id' (id:${req.params['id']}): ${e.message}`);
     console.error(err);
+    clog.httpStatus(500, `${e.message}`);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
 });
 
-router.post('/', (req, res) => {
-  // create a new category
+router.post('/', async (req, res) => {
+  const clog = new Clog('POST /api/categories/');
+  try {
+    if(!req.body[`category_name`]){
+      clog.httpStatus(400, 'No category_name in req');
+      res.status(400).json({status:400, message: 'New categories must be preceded with a category_name'});
+    }else{
+      const createStatus = await Category.create({
+        category_name: req.body['category_name']
+      })
+      clog.httpStatus(201);
+      res.status(201).json(createStatus);
+    }
+  } catch (err) {
+    console.error(err);
+    clog.httpStatus(500, `${err.message}`);
+    res.status(500).json({status:500, message: `An internal server error occured`});
+  }
 });
 
 router.put('/:id', (req, res) => {
