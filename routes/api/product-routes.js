@@ -6,7 +6,7 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 
 router.get('/', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog('GET /api/products/');
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     const productsData = await Product.findAll({include: [Category, Tag]});
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
       res.status(404).json({status:404, message:`There are no products in the database`})
     }else{
       clog.httpStatus(200);
-      res.json(productsData).status(200);
+      res.status(200).json(productsData);
     }
   } catch (err) {
     // if there was an error, log it and res 500
@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 // get one product
 router.get('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`GET /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     // check if this id is in the db and get that id
@@ -38,7 +38,7 @@ router.get('/:id', async (req, res) => {
       res.status(404).json({status:404, message:`Product not found for ID ${req.params['id']}`});
     }else{
       clog.httpStatus(200);
-      res.json(productData).status(200);
+      res.status(200).json(productData);
     }
   } catch (err) {
     // if there was an error, log it and res 500
@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
     }
   */
   // initialzie clog for route
-  const clog = new Clog(`POST /api/products/`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   Product.create(req.body)
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
@@ -90,7 +90,7 @@ router.post('/', (req, res) => {
 // update product
 router.put('/:id', (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`PUT /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   Product.update(req.body, {
     where: {
       id: req.params.id,
@@ -136,7 +136,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`DELETE /api/products/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // check if this id is in the db

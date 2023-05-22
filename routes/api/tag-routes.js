@@ -6,7 +6,7 @@ const Clog = require('../../lib/clog');
 
 router.get('/', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`GET /api/tags/`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // get all tags
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`GET /api/tags/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     // check if this id is in the db and get that id
@@ -55,7 +55,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog('POST /api/tags/');
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try {
     // if tag name was not sent, res 400 and ret error
@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`/api/tags/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // check if this id is in the db
@@ -115,7 +115,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // initialzie clog for route
-  const clog = new Clog(`DELETE /api/tags/${req.params['id']}`);
+  const clog = new Clog(` ${req.method} ${endpoint}${req.route.path}`);
   // wrap to catch internal server errors
   try{
     // check if this id is in the db
