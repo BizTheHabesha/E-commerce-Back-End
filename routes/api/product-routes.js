@@ -1,40 +1,43 @@
 const router = require('express').Router();
+const Clog = require('../../lib/clog');
 const { Product, Category, Tag, ProductTag } = require('../../models');
 
 // The `/api/products` endpoint
 
 // get all products
 router.get('/', async (req, res) => {
+  const clog = new Clog('/api/products/');
   try {
     const productsData = await Product.findAll({include: [Category, Tag]});
     if(!productsData){
-      console.warn(`404: GET /api/products/: No product data`);
+      clog.httpStatus(404, `There are no products in the database`);
       res.status(404).json({status:404, message:`There are no products in the database`})
     }else{
-      console.info(`200: GET '/api/products/'`);
+      clog.httpStatus(200);
       res.json(productsData).status(200);
     }
   } catch (err) {
-    console.error(`500: GET /api/products/: ${err.message}`);
     console.error(err);
+    clog.httpStatus(500, `${err.message}`);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
 });
 
 // get one product
 router.get('/:id', async (req, res) => {
+  const clog = new Clog(`/api/products/${req.params['id']}`);
   try {
     const productData = await Product.findByPk(req.params['id'], {include: Category});
     if(!productData){
-      console.warn(`404: GET /api/products/${req.params['id']}: ID ${req.params['id']} not found`);
+      clog.httpStatus(404, `Product not found for ID ${req.params['id']}`);
       res.status(404).json({status:404, message:`Product not found for ID ${req.params['id']}`});
     }else{
-      console.info(`200: GET '/api/products/${req.params['id']}'`)
+      clog.httpStatus(200);
       res.json(productData).status(200);
     }
   } catch (err) {
-    console.error(`500: GET /api/products/${req.params['id']}: ${err.message}`);
     console.error(err);
+    clog.httpStatus(500, `${err.message}`);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
 });
