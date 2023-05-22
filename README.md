@@ -27,7 +27,7 @@ These can also be found in the .env.EXAMPLE file.
 ___
 ## Usage
 Watch the following video for a walkthrough of the application:  
-[![Walkthrough Video]()]()  
+[![Walkthrough Video](https://youtu.be/VmSHsC8XLFQ)](https://youtu.be/VmSHsC8XLFQ)  
 Navigate to the root directory of the project and start a mysql session. Then run
 ```sql
 source db/schema.sql
