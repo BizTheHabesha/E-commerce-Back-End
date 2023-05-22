@@ -4,9 +4,10 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 
 // The `/api/products` endpoint
 
-// get all products
 router.get('/', async (req, res) => {
+  // initialzie clog for route
   const clog = new Clog('GET /api/products/');
+  // wrap to catch internal server errors
   try {
     const productsData = await Product.findAll({include: [Category, Tag]});
     if(!productsData){
@@ -17,6 +18,7 @@ router.get('/', async (req, res) => {
       res.json(productsData).status(200);
     }
   } catch (err) {
+    // if there was an error, log it and res 500
     console.error(err);
     clog.httpStatus(500, `${err.message}`);
     res.status(500).json({status:500, message:`An internal server error occured`});
@@ -25,8 +27,11 @@ router.get('/', async (req, res) => {
 
 // get one product
 router.get('/:id', async (req, res) => {
+  // initialzie clog for route
   const clog = new Clog(`GET /api/products/${req.params['id']}`);
+  // wrap to catch internal server errors
   try {
+    // check if this id is in the db and get that id
     const productData = await Product.findByPk(req.params['id'], {include: [Category, Tag]});
     if(!productData){
       clog.httpStatus(404, `Product not found for ID ${req.params['id']}`);
@@ -36,6 +41,7 @@ router.get('/:id', async (req, res) => {
       res.json(productData).status(200);
     }
   } catch (err) {
+    // if there was an error, log it and res 500
     console.error(err);
     clog.httpStatus(500, `${err.message}`);
     res.status(500).json({status:500, message:`An internal server error occured`});
@@ -52,6 +58,7 @@ router.post('/', (req, res) => {
       tagIds: [1, 2, 3, 4]
     }
   */
+  // initialzie clog for route
   const clog = new Clog(`POST /api/products/`);
   Product.create(req.body)
     .then((product) => {
@@ -82,7 +89,7 @@ router.post('/', (req, res) => {
 
 // update product
 router.put('/:id', (req, res) => {
-  // update product data
+  // initialzie clog for route
   const clog = new Clog(`PUT /api/products/${req.params['id']}`);
   Product.update(req.body, {
     where: {
@@ -128,13 +135,17 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  // delete a category by its `id` value
+  // initialzie clog for route
   const clog = new Clog(`DELETE /api/products/${req.params['id']}`);
+  // wrap to catch internal server errors
   try{
+    // check if this id is in the db
     const findRes = await Product.findByPk(req.params['id']);
+    // if id not found, res 404 and ret errro
     if(!findRes){
       clog.httpStatus(404, `Product not found for ID ${req.params['id']}`);
       res.status(404).json({status:404, message: `Product not found for ID ${req.params['id']}`});
+    // otherwise destroy specified category, res 202 and ret number deleted (should be 1)
     }else{
       const deleteRes = await Product.destroy({
         where: {
@@ -145,6 +156,7 @@ router.delete('/:id', async (req, res) => {
       res.status(202).json(deleteRes);
     }
   }catch(error){
+    // if there was an error, log it and res 500
     console.error(error);
     clog.httpStatus(500, `${error.message}`);
     res.status(500).json({status:500, message: `An internal server error occured`});
