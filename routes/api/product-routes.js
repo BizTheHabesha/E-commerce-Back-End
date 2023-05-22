@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const clog = new Clog(`GET /api/products/${req.params['id']}`);
   try {
-    const productData = await Product.findByPk(req.params['id'], {include: Category});
+    const productData = await Product.findByPk(req.params['id'], {include: [Category, Tag]});
     if(!productData){
       clog.httpStatus(404, `Product not found for ID ${req.params['id']}`);
       res.status(404).json({status:404, message:`Product not found for ID ${req.params['id']}`});
@@ -66,10 +66,12 @@ router.post('/', (req, res) => {
         return ProductTag.bulkCreate(productTagIdArr);
       }
       // if no product tags, just respond
-      clog.httpStatus(200);
       res.status(200).json(product);
     })
-    .then((productTagIds) => res.status(200).json(productTagIds))
+    .then((productTagIds) => {
+      clog.httpStatus(200);
+      return res.status(200).json(productTagIds)
+    })
     .catch((err) => {
       console.log(err);
       clog.httpStatus(400, `${err.message}`);
@@ -124,8 +126,28 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+router.delete('/:id', async (req, res) => {
+  // delete a category by its `id` value
+  const clog = new Clog(`DELETE /api/products/${req.params['id']}`);
+  try{
+    const findRes = await Product.findByPk(req.params['id']);
+    if(!findRes){
+      clog.httpStatus(404, `Product not found for ID ${req.params['id']}`);
+      res.status(404).json({status:404, message: `Product not found for ID ${req.params['id']}`});
+    }else{
+      const deleteRes = await Product.destroy({
+        where: {
+          id: req.params['id']
+        }
+      })
+      clog.httpStatus(202, deleteRes);
+      res.status(202).json(deleteRes);
+    }
+  }catch(error){
+    console.error(error);
+    clog.httpStatus(500, `${err.message}`);
+    res.status(500).json({status:500, message: `An internal server error occured`});
+  }
 });
 
 module.exports = router;
