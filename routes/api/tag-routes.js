@@ -1,45 +1,63 @@
 const router = require('express').Router();
 const { Tag, Product, ProductTag } = require('../../models');
+const Clog = require('../../lib/clog');
 
 // The `/api/tags` endpoint
 
 router.get('/', async (req, res) => {
+  const clog = new Clog(`GET /api/tags/`);
   try{
     const tagsData = await Tag.findAll({include: Product});
     if(!tagsData){
-      console.warn(`404: GET /api/tags/: No tag data`);
+      clog.httpStatus(404, `No tag data`);
       res.status(404).json({status:404, message:`There are no tags in the database`})
     }else{
-      console.info(`200: GET /api/tags/`)
+      clog.httpStatus(200);
       res.status(200).json(tagsData);
     }
   }catch(err){
-    console.error(`500: GET /api/products/: ${err.message}`);
     console.error(err);
+    clog.httpStatus(500, err.message);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
 
 });
 
 router.get('/:id', async (req, res) => {
+  const clog = new Clog(`GET /api/tags/${req.params['id']}`);
   try {
     const tagData = await Tag.findByPk(req.params['id'],{include: Product});
     if(!tagData){
-      console.warn(`404: GET /api/tags/${req.params['id']}: Tag not found for id ${req.params['id']} `);
+      clog.httpStatus(404, `Tag not found for id ${req.params['id']}`);
       res.status(404).json({status:404, message:`Tag not found for id ${req.params['id']}`});
     }else{
-      console.info(`200: GET /api/tags/`);
+      clog.httpStatus(200);
       res.status(200).json(tagData);
     }
   } catch (err) {
-    console.error(`500: /api/tags/${req.params['id']}: ${err.message}`);
     console.error(err);
+    clog.httpStatus(500, err.message);
     res.status(500).json({status:500, message:`An internal server error occured`});
   }
 });
 
-router.post('/', (req, res) => {
-  // create a new tag
+router.post('/', async (req, res) => {
+  const clog = new Clog('POST /api/tags/');
+  try {
+    if(!req.body[`tag_name`]){
+      clog.httpStatus(400, 'No tag_name in req');
+      res.status(400).json({status:400, message: 'New tags must be preceded with a tag_name'});
+    }else{
+      const createStatus = await Tag.create({
+        tag_name: req.body['tag_name']
+      })
+      clog.httpStatus(201);
+      res.status(201).json(createStatus);
+    }
+  } catch (err) {
+    clog.httpStatus(500, `${err.message}`);
+    res.status(500).json({status:500, message: `An internal server error occured`});
+  }
 });
 
 router.put('/:id', (req, res) => {

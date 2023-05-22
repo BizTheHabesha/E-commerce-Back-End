@@ -6,7 +6,7 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 
 // get all products
 router.get('/', async (req, res) => {
-  const clog = new Clog('/api/products/');
+  const clog = new Clog('GET /api/products/');
   try {
     const productsData = await Product.findAll({include: [Category, Tag]});
     if(!productsData){
@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
 
 // get one product
 router.get('/:id', async (req, res) => {
-  const clog = new Clog(`/api/products/${req.params['id']}`);
+  const clog = new Clog(`GET /api/products/${req.params['id']}`);
   try {
     const productData = await Product.findByPk(req.params['id'], {include: Category});
     if(!productData){
@@ -52,6 +52,7 @@ router.post('/', (req, res) => {
       tagIds: [1, 2, 3, 4]
     }
   */
+  const clog = new Clog(`POST /api/products/`);
   Product.create(req.body)
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
@@ -65,11 +66,13 @@ router.post('/', (req, res) => {
         return ProductTag.bulkCreate(productTagIdArr);
       }
       // if no product tags, just respond
+      clog.httpStatus(200);
       res.status(200).json(product);
     })
     .then((productTagIds) => res.status(200).json(productTagIds))
     .catch((err) => {
       console.log(err);
+      clog.httpStatus(400, `${err.message}`);
       res.status(400).json(err);
     });
 });
@@ -77,6 +80,7 @@ router.post('/', (req, res) => {
 // update product
 router.put('/:id', (req, res) => {
   // update product data
+  const clog = new Clog(`PUT /api/products/${req.params['id']}`);
   Product.update(req.body, {
     where: {
       id: req.params.id,
@@ -109,9 +113,13 @@ router.put('/:id', (req, res) => {
         ProductTag.bulkCreate(newProductTags),
       ]);
     })
-    .then((updatedProductTags) => res.json(updatedProductTags))
+    .then((updatedProductTags) => {
+      clog.httpStatus(202);
+      return res.status(202).json(updatedProductTags)
+    })
     .catch((err) => {
-      // console.log(err);
+      console.error(err);
+      clog.httpStatus(500, err.message);
       res.status(400).json(err);
     });
 });
