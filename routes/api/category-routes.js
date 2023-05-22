@@ -64,8 +64,28 @@ router.put('/:id', (req, res) => {
   // update a category by its `id` value
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   // delete a category by its `id` value
+  const clog = new Clog(`DELETE /api/products/${req.params['id']}`);
+  try{
+    const findRes = await Category.findByPk(req.params['id']);
+    if(!findRes){
+      clog.httpStatus(404, `Category not found for ID ${req.params['id']}`);
+      res.status(404).json({status:404, message: `Category not found for ID ${req.params['id']}`});
+    }else{
+      const deleteRes = await Category.destroy({
+        where: {
+          id: req.params['id']
+        }
+      })
+      clog.httpStatus(202, deleteRes);
+      res.status(202).json(deleteRes);
+    }
+  }catch(error){
+    console.error(error);
+    clog.httpStatus(500, `${err.message}`);
+    res.status(500).json({status:500, message: `An internal server error occured`});
+  }
 });
 
 module.exports = router;
